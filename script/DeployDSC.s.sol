@@ -5,18 +5,24 @@ pragma solidity ^0.8.21;
 import {Script} from "forge-std/Script.sol";
 import {DecentralizedStableCoin} from "../src/DecentralizedStableCoin.sol";
 import {DSCEngine} from "../src/DSCEngine.sol";
+import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 
 contract DeployDSC is Script {
-    function run() public returns (DecentralizedStableCoin, DSCEngine) {
+    function run() public returns (DecentralizedStableCoin, DSCEngine, address) {
         address owner = makeAddr("owner");
         DecentralizedStableCoin dsc;
         DSCEngine dscEngine;
+        address weth;
 
         vm.startBroadcast();
+        weth = address(new ERC20Mock());
+        address[] memory tokens = new address[](1);
+        tokens[0] = weth;
+
         dsc = new DecentralizedStableCoin(owner);
-        dscEngine = new DSCEngine();
+        dscEngine = new DSCEngine(tokens);
         vm.stopBroadcast();
 
-        return (dsc, dscEngine);
+        return (dsc, dscEngine, weth);
     }
 }
