@@ -3,15 +3,17 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
+import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 import {DeployDSC} from "../../script/DeployDSC.s.sol";
 import {DecentralizedStableCoin} from "../../src/DecentralizedStableCoin.sol";
 import {DSCEngine} from "../../src/DSCEngine.sol";
+import {MockERC20TransferFrom} from "../mock/MockERC20TransferFrom.sol";
 
 contract DepositCollateralTest is Test {
 
     DecentralizedStableCoin private dsc;
     DSCEngine private dscEngine;
-    address private weth;
+    ERC20Mock private weth;
 
     function setUp() public {
         DeployDSC deploy = new DeployDSC();
@@ -31,7 +33,7 @@ contract DepositCollateralTest is Test {
 
     function test_RevertWhen_AmountIsZero() external whenTokenIsAllowed {
         vm.expectRevert(DSCEngine.DSCEngine__NeedsMoreThanZero.selector);
-        dscEngine.depositCollateral(weth, 0);
+        dscEngine.depositCollateral(address(weth), 0);
     }
 
     modifier whenAmountIsGreaterThanZero() {
@@ -39,12 +41,32 @@ contract DepositCollateralTest is Test {
     }
 
     function test_RevertWhen_TransferFails() external whenTokenIsAllowed whenAmountIsGreaterThanZero {
-        // it should revert
+        address mockERC20 = address(new MockERC20TransferFrom());
+        address[] memory tokens = new address[](1);
+        tokens[0] = mockERC20;
+
+        dscEngine = new DSCEngine(tokens);
+
+        vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
+        dscEngine.depositCollateral(mockERC20, 100);
     }
 
     function test_WhenTransferSucceeds() external whenTokenIsAllowed whenAmountIsGreaterThanZero {
+        uint256 amount = 100;
+        address user = makeAddr("user");
+
+        weth.mint(user, amount);
+        vm.startPrank(user);
+        weth.approve(address(dscEngine), amount);
+        dscEngine.depositCollateral(address(weth), amount);
+        vm.stopPrank();
+
         // it should record the deposited collateral
+        
         // it should emit CollateralDeposited event
+
         // it should transfer tokens to the engine
+        assertEq(weth.balanceOf(address(dscEngine)), amount);
+        assertEq(weth.balanceOf(user), 0);
     }
 }

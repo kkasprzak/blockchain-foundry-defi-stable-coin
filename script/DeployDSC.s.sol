@@ -8,16 +8,16 @@ import {DSCEngine} from "../src/DSCEngine.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 
 contract DeployDSC is Script {
-    function run() public returns (DecentralizedStableCoin, DSCEngine, address) {
+    function run() public returns (DecentralizedStableCoin, DSCEngine, ERC20Mock) {
         address owner = makeAddr("owner");
         DecentralizedStableCoin dsc;
         DSCEngine dscEngine;
-        address weth;
+        ERC20Mock weth;
 
         vm.startBroadcast();
-        weth = address(new ERC20Mock());
+        weth = new ERC20Mock();
         address[] memory tokens = new address[](1);
-        tokens[0] = weth;
+        tokens[0] = address(weth);
 
         dsc = new DecentralizedStableCoin(owner);
         dscEngine = new DSCEngine(tokens);

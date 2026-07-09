@@ -2,9 +2,12 @@
 
 pragma solidity ^0.8.21;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 contract DSCEngine {
     error DSCEngine__TokenNotAllowed();
     error DSCEngine__NeedsMoreThanZero();
+    error DSCEngine__TransferFailed();
 
     mapping(address token => bool supported) private s_supportedCollateralTokens;
 
@@ -23,6 +26,11 @@ contract DSCEngine {
 
         if (collateralAmount == 0) {
             revert DSCEngine__NeedsMoreThanZero();
+        }
+
+        bool result = IERC20(collateralTokenAddress).transferFrom(msg.sender, address(this), collateralAmount);
+        if (!result) {
+            revert DSCEngine__TransferFailed();
         }
     }
 }
