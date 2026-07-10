@@ -7,6 +7,10 @@ DepositCollateralTest
     └── when amount is greater than zero
         ├── when transfer fails
         │   └── it should revert
+        ├── when token does not return a value on transferFrom
+        │   └── it should accept the deposit
+        ├── when token takes a fee on transfer
+        │   └── it should record only the amount actually received
         └── when transfer succeeds
             ├── it should record the deposited collateral
             ├── it should emit CollateralDeposited event

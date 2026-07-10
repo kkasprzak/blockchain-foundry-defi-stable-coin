@@ -10,6 +10,9 @@ contract DSCEngine {
     error DSCEngine__TransferFailed();
 
     mapping(address token => bool supported) private s_supportedCollateralTokens;
+    mapping(address user => mapping(address token => uint256 amount)) private s_depositedCollateral;
+
+    event CollateralDeposited(address indexed user, address indexed token, uint256 amount);
 
     constructor (
         address[] memory supportedCollateralTokens
@@ -28,9 +31,16 @@ contract DSCEngine {
             revert DSCEngine__NeedsMoreThanZero();
         }
 
+        s_depositedCollateral[msg.sender][collateralTokenAddress] += collateralAmount;
+        emit CollateralDeposited(msg.sender, collateralTokenAddress, collateralAmount);
+
         bool result = IERC20(collateralTokenAddress).transferFrom(msg.sender, address(this), collateralAmount);
         if (!result) {
             revert DSCEngine__TransferFailed();
         }
+    }
+
+    function depositedCollateralOf(address user, address collateralTokenAddress) external view returns (uint256) {
+        return s_depositedCollateral[user][collateralTokenAddress];
     }
 }

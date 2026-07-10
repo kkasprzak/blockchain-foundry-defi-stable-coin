@@ -58,12 +58,15 @@ contract DepositCollateralTest is Test {
         weth.mint(user, amount);
         vm.startPrank(user);
         weth.approve(address(dscEngine), amount);
+        // it should emit CollateralDeposited event
+        vm.expectEmit(true, true, false, true);
+        emit DSCEngine.CollateralDeposited(user, address(weth), amount);
         dscEngine.depositCollateral(address(weth), amount);
         vm.stopPrank();
 
         // it should record the deposited collateral
+        assertEq(dscEngine.depositedCollateralOf(user, address(weth)), amount);
         
-        // it should emit CollateralDeposited event
 
         // it should transfer tokens to the engine
         assertEq(weth.balanceOf(address(dscEngine)), amount);
