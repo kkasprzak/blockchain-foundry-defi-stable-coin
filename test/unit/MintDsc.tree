@@ -1,0 +1,15 @@
+MintDscTest
+├── when amount is zero
+│   └── it should revert
+└── when amount is greater than zero
+    ├── given user has no collateral
+    │   └── it should revert
+    ├── given user has insufficient collateral
+    │   └── it should revert
+    └── given user has enough collateral
+        ├── when mint fails
+        │   └── it should revert
+        └── when mint succeeds
+            ├── it should record the minted DSC as user debt
+            ├── it should credit user with DSC tokens
+            └── it should emit a DscMinted event
