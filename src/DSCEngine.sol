@@ -14,6 +14,20 @@ contract DSCEngine {
 
     event CollateralDeposited(address indexed user, address indexed token, uint256 amount);
 
+    modifier moreThanZero(uint256 amount) {
+        if (amount == 0) {
+            revert DSCEngine__NeedsMoreThanZero();
+        }
+        _;
+    }
+
+    modifier isAllowedToken(address token) {
+        if (!s_supportedCollateralTokens[token]) {
+            revert DSCEngine__TokenNotAllowed();
+        }
+        _;
+    }
+
     constructor (
         address[] memory supportedCollateralTokens
     ) {
@@ -22,15 +36,7 @@ contract DSCEngine {
         }
     }
 
-    function depositCollateral(address collateralTokenAddress, uint256 collateralAmount) external {
-        if (!s_supportedCollateralTokens[collateralTokenAddress]) {
-            revert DSCEngine__TokenNotAllowed();
-        }
-
-        if (collateralAmount == 0) {
-            revert DSCEngine__NeedsMoreThanZero();
-        }
-
+    function depositCollateral(address collateralTokenAddress, uint256 collateralAmount) external isAllowedToken(collateralTokenAddress) moreThanZero(collateralAmount) {
         s_depositedCollateral[msg.sender][collateralTokenAddress] += collateralAmount;
         emit CollateralDeposited(msg.sender, collateralTokenAddress, collateralAmount);
 
@@ -42,5 +48,8 @@ contract DSCEngine {
 
     function depositedCollateralOf(address user, address collateralTokenAddress) external view returns (uint256) {
         return s_depositedCollateral[user][collateralTokenAddress];
+    }
+
+    function mintDsc(uint256 amount) external moreThanZero(amount) {
     }
 }
