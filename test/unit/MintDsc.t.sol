@@ -28,7 +28,8 @@ contract MintDscTest is Test {
     }
 
     function test_RevertGiven_UserHasNoCollateral() external whenAmountIsGreaterThanZero {
-        // it should revert
+        vm.expectRevert(DSCEngine.DSCEngine__HealthFactorBroken.selector);
+        dscEngine.mintDsc(100);
     }
 
     function test_RevertGiven_UserHasInsufficientCollateral() external whenAmountIsGreaterThanZero {

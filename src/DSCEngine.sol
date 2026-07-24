@@ -8,6 +8,7 @@ contract DSCEngine {
     error DSCEngine__TokenNotAllowed();
     error DSCEngine__NeedsMoreThanZero();
     error DSCEngine__TransferFailed();
+    error DSCEngine__HealthFactorBroken();
 
     mapping(address token => bool supported) private s_supportedCollateralTokens;
     mapping(address user => mapping(address token => uint256 amount)) private s_depositedCollateral;
@@ -51,5 +52,12 @@ contract DSCEngine {
     }
 
     function mintDsc(uint256 amount) external moreThanZero(amount) {
+        if (totalCollateralValueOf(msg.sender) == 0) {
+            revert DSCEngine__HealthFactorBroken();
+        }
+    }
+
+    function totalCollateralValueOf(address user) private view returns (uint256) {
+        return 0;
     }
 }
