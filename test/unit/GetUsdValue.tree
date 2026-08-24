@@ -1,0 +1,4 @@
+GetUsdValueTest
+├── when token is not allowed
+│   └── it should revert
+└── when token is allowed
