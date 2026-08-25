@@ -2,3 +2,9 @@ GetUsdValueTest
 ├── when token is not allowed
 │   └── it should revert
 └── when token is allowed
+    ├── when amount is one whole token
+    │   └── it should return the token price in usd
+    ├── when amount is more than one token
+    │   └── it should scale the price by the amount
+    └── when another token has a different price
+        └── it should use the price feed of the given token

@@ -10,8 +10,9 @@ contract DSCEngine {
     error DSCEngine__TransferFailed();
     error DSCEngine__HealthFactorBroken();
 
-    mapping(address token => bool supported) private s_supportedCollateralTokens;
+    mapping(address token => address priceFeed) private s_priceFeeds;
     mapping(address user => mapping(address token => uint256 amount)) private s_depositedCollateral;
+    address[] private s_collateralTokens;
 
     event CollateralDeposited(address indexed user, address indexed token, uint256 amount);
 
@@ -23,17 +24,19 @@ contract DSCEngine {
     }
 
     modifier isAllowedToken(address token) {
-        if (!s_supportedCollateralTokens[token]) {
+        if (s_priceFeeds[token] == address(0)) {
             revert DSCEngine__TokenNotAllowed();
         }
         _;
     }
 
     constructor (
-        address[] memory supportedCollateralTokens
+        address[] memory tokens,
+        address[] memory priceFeeds
     ) {
-        for (uint256 i = 0; i < supportedCollateralTokens.length; i++) {
-            s_supportedCollateralTokens[supportedCollateralTokens[i]] = true;
+        for (uint256 i = 0; i < tokens.length; i++) {
+            s_priceFeeds[tokens[i]] = priceFeeds[i];
+            s_collateralTokens.push(tokens[i]);
         }
     }
 

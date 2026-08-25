@@ -8,6 +8,7 @@ import {DeployDSC} from "../../script/DeployDSC.s.sol";
 import {DecentralizedStableCoin} from "../../src/DecentralizedStableCoin.sol";
 import {DSCEngine} from "../../src/DSCEngine.sol";
 import {MockERC20TransferFrom} from "../mock/MockERC20TransferFrom.sol";
+import {MockV3Aggregator} from "@chainlink/contracts/src/v0.8/tests/MockV3Aggregator.sol";
 
 contract DepositCollateralTest is Test {
 
@@ -45,7 +46,11 @@ contract DepositCollateralTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = mockERC20;
 
-        dscEngine = new DSCEngine(tokens);
+        address mockPriceFeed = address(new MockV3Aggregator(8, 2000e8));
+        address[] memory feeds = new address[](1);
+        feeds[0] = mockPriceFeed;
+
+        dscEngine = new DSCEngine(tokens, feeds);
 
         vm.expectRevert(DSCEngine.DSCEngine__TransferFailed.selector);
         dscEngine.depositCollateral(mockERC20, 100);
