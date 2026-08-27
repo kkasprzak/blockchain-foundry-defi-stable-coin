@@ -63,4 +63,8 @@ contract DSCEngine {
     function totalCollateralValueOf(address user) private view returns (uint256) {
         return 0;
     }
+
+    function getUsdValue(address token, uint256 amount) external view isAllowedToken(token) returns (uint256) {
+        return 2000e18;
+    }
 }
