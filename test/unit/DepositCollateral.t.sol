@@ -18,7 +18,7 @@ contract DepositCollateralTest is Test {
 
     function setUp() public {
         DeployDSC deploy = new DeployDSC();
-        (dsc, dscEngine, weth) = deploy.run();
+        (dsc, dscEngine, weth, ) = deploy.run();
     }
 
     function test_RevertWhen_TokenIsNotAllowed() external {

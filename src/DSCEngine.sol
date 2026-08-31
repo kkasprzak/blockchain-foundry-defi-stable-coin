@@ -10,6 +10,10 @@ contract DSCEngine {
     error DSCEngine__TransferFailed();
     error DSCEngine__HealthFactorBroken();
 
+    uint256 constant private FEED_PRECISION = 1e8;
+    uint256 constant private PRECISION = 1e18;
+    uint256 constant private ADDITIONAL_FEED_PRECISION = PRECISION / FEED_PRECISION;
+
     mapping(address token => address priceFeed) private s_priceFeeds;
     mapping(address user => mapping(address token => uint256 amount)) private s_depositedCollateral;
     address[] private s_collateralTokens;
@@ -65,6 +69,9 @@ contract DSCEngine {
     }
 
     function getUsdValue(address token, uint256 amount) external view isAllowedToken(token) returns (uint256) {
-        return 2000e18;
+        uint256 tokenPrice = 2000e8;
+        uint256 adjustedTokenPrice = tokenPrice * ADDITIONAL_FEED_PRECISION;
+
+        return (adjustedTokenPrice * amount) / PRECISION;
     }
 }

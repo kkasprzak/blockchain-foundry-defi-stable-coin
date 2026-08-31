@@ -12,10 +12,11 @@ contract GetUsdValueTest is Test {
     DecentralizedStableCoin private dsc;
     DSCEngine private dscEngine;
     ERC20 private weth;
+    ERC20 private wbtc;
 
     function setUp() public {
         DeployDSC deploy = new DeployDSC();
-        (dsc, dscEngine, weth) = deploy.run();
+        (dsc, dscEngine, weth, wbtc) = deploy.run();
     }
 
     function test_RevertWhen_TokenIsNotAllowed() external {
@@ -38,6 +39,6 @@ contract GetUsdValueTest is Test {
     }
 
     function test_WhenAnotherTokenHasADifferentPrice() external whenTokenIsAllowed {
-        // it should use the price feed of the given token
+        assertEq(dscEngine.getUsdValue(address(wbtc), 1 ether), 1000e18);
     }
 }
