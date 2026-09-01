@@ -1,0 +1,7 @@
+TotalCollateralValueOfTest
+├── given user has no collateral
+│   └── it should return zero
+├── given user deposited a single collateral token
+│   └── it should return the value of that collateral in usd
+└── given user deposited multiple collateral tokens
+    └── it should return the summed value of all collateral in usd

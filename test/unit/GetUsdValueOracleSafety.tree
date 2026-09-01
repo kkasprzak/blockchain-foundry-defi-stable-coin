@@ -1,0 +1,7 @@
+GetUsdValueOracleSafetyTest
+├── when the price is zero
+│   └── it should revert
+├── when the price is negative
+│   └── it should revert
+└── when the price is stale
+    └── it should revert

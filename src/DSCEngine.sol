@@ -3,6 +3,7 @@
 pragma solidity ^0.8.21;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 
 contract DSCEngine {
     error DSCEngine__TokenNotAllowed();
@@ -69,7 +70,10 @@ contract DSCEngine {
     }
 
     function getUsdValue(address token, uint256 amount) external view isAllowedToken(token) returns (uint256) {
-        uint256 tokenPrice = 2000e8;
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
+        (,int256 answer,,,) = priceFeed.latestRoundData();
+        
+        uint256 tokenPrice = uint256(answer);
         uint256 adjustedTokenPrice = tokenPrice * ADDITIONAL_FEED_PRECISION;
 
         return (adjustedTokenPrice * amount) / PRECISION;
