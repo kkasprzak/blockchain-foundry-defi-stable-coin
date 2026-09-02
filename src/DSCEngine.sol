@@ -65,11 +65,18 @@ contract DSCEngine {
         }
     }
 
-    function totalCollateralValueOf(address user) private view returns (uint256) {
-        return 0;
+    function totalCollateralValueOf(address user) public view returns (uint256) {
+        uint256 total = 0;
+
+        for (uint256 i = 0; i < s_collateralTokens.length; i++) {
+            uint256 amount = s_depositedCollateral[user][s_collateralTokens[i]];
+            total += getUsdValue(s_collateralTokens[i], amount);
+        }
+
+        return total;
     }
 
-    function getUsdValue(address token, uint256 amount) external view isAllowedToken(token) returns (uint256) {
+    function getUsdValue(address token, uint256 amount) public view isAllowedToken(token) returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
         (,int256 answer,,,) = priceFeed.latestRoundData();
         
