@@ -1,0 +1,5 @@
+HealthFactorOfTest
+├── given user has no debt
+│   └── it should return the maximum health factor
+└── given user has debt
+    └── it should return the ratio of liquidation-adjusted collateral to debt

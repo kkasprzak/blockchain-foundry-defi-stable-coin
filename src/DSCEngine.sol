@@ -11,9 +11,9 @@ contract DSCEngine {
     error DSCEngine__TransferFailed();
     error DSCEngine__HealthFactorBroken();
 
-    uint256 constant private FEED_PRECISION = 1e8;
-    uint256 constant private PRECISION = 1e18;
-    uint256 constant private ADDITIONAL_FEED_PRECISION = PRECISION / FEED_PRECISION;
+    uint256 private constant FEED_PRECISION = 1e8;
+    uint256 private constant PRECISION = 1e18;
+    uint256 private constant ADDITIONAL_FEED_PRECISION = PRECISION / FEED_PRECISION;
 
     mapping(address token => address priceFeed) private s_priceFeeds;
     mapping(address user => mapping(address token => uint256 amount)) private s_depositedCollateral;
@@ -35,17 +35,18 @@ contract DSCEngine {
         _;
     }
 
-    constructor (
-        address[] memory tokens,
-        address[] memory priceFeeds
-    ) {
+    constructor(address[] memory tokens, address[] memory priceFeeds) {
         for (uint256 i = 0; i < tokens.length; i++) {
             s_priceFeeds[tokens[i]] = priceFeeds[i];
             s_collateralTokens.push(tokens[i]);
         }
     }
 
-    function depositCollateral(address collateralTokenAddress, uint256 collateralAmount) external isAllowedToken(collateralTokenAddress) moreThanZero(collateralAmount) {
+    function depositCollateral(address collateralTokenAddress, uint256 collateralAmount)
+        external
+        isAllowedToken(collateralTokenAddress)
+        moreThanZero(collateralAmount)
+    {
         s_depositedCollateral[msg.sender][collateralTokenAddress] += collateralAmount;
         emit CollateralDeposited(msg.sender, collateralTokenAddress, collateralAmount);
 
@@ -65,6 +66,10 @@ contract DSCEngine {
         }
     }
 
+    function healthFactorOf(address user) public view returns (uint256) {
+        return type(uint256).max;
+    }
+
     function totalCollateralValueOf(address user) public view returns (uint256) {
         uint256 total = 0;
 
@@ -78,8 +83,8 @@ contract DSCEngine {
 
     function getUsdValue(address token, uint256 amount) public view isAllowedToken(token) returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeeds[token]);
-        (,int256 answer,,,) = priceFeed.latestRoundData();
-        
+        (, int256 answer,,,) = priceFeed.latestRoundData();
+
         uint256 tokenPrice = uint256(answer);
         uint256 adjustedTokenPrice = tokenPrice * ADDITIONAL_FEED_PRECISION;
 
