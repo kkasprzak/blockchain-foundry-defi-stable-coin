@@ -17,6 +17,7 @@ contract DSCEngine {
 
     mapping(address token => address priceFeed) private s_priceFeeds;
     mapping(address user => mapping(address token => uint256 amount)) private s_depositedCollateral;
+    mapping(address user => uint256 amount) private s_debt;
     address[] private s_collateralTokens;
 
     event CollateralDeposited(address indexed user, address indexed token, uint256 amount);
@@ -64,6 +65,12 @@ contract DSCEngine {
         if (totalCollateralValueOf(msg.sender) == 0) {
             revert DSCEngine__HealthFactorBroken();
         }
+
+        s_debt[msg.sender] += amount;
+    }
+
+    function debtOf(address user) public view returns (uint256) {
+        return s_debt[user];
     }
 
     function healthFactorOf(address user) public view returns (uint256) {
